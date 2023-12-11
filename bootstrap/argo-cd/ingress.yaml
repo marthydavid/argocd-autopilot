@@ -1,0 +1,32 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    nginx.ingress.kubernetes.io/backend-protocol: HTTPS
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+  name: argocd
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: argocd.oci.marthy.xyz
+      http:
+        paths:
+          - backend:
+              service:
+                name: argocd-server
+                port:
+                  name: https
+            path: /
+            pathType: ImplementationSpecific
+          - backend:
+              service:
+                name: argocd-dex-server
+                port:
+                  name: http
+            path: /api/dex
+            pathType: Prefix
+  tls:
+    - hosts:
+        - argocd.oci.marthy.xyz
+      secretName: argocd-https-cert
